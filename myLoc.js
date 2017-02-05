@@ -1,5 +1,8 @@
 window.onload = getMyLocation;
 
+var latitude;
+var longitude;
+
 function getMyLocation() {
 	if (navigator.geolocation) {
 		navigator.geolocation.getCurrentPosition(displayLocation);
@@ -8,10 +11,24 @@ function getMyLocation() {
 	}
 }
 
+function displayLocation(position) {
+	latitude = position.coords.latitude;
+	longitude = position.coords.longitude;
+
+	var div = document.getElementById("location");
+	div.innerHTML = "You are at Latitude: " + latitude + ", Longitude: " + longitude;
+
+	var km = computeDistance(position.coords, ourCoords);
+	var distance = document.getElementById("distance");
+	distance.innerHTML = "You are " + km + " km from the WickedlySmart HQ";
+
+	showMap(position.coords);
+}
+
 var map;
 
 function showMap(coords) {
-	var googleLatAndLong = new google.maps.LatLng(latitude, longitude);
+	var googleLatAndLong = new google.maps.LatLng(coords.latitude, coords.longitude);
 
 	var mapOptions = {
 		zoom: 10,
@@ -20,19 +37,7 @@ function showMap(coords) {
 	};
 
 	var mapDiv = document.getElementById("map");
-	map = new google.maps.Map(mapDiv, mapOptions);	
-}
-
-function displayLocation(position) {
-	var latitude = position.coords.latitude;
-	var longitude = position.coords.longitude;
-
-	var div = document.getElementById("location");
-	div.innerHTML = "You are at Latitude: " + latitude + ", Longitude: " + longitude;
-
-	var km = computeDistance(position.coords, ourCoords);
-	var distance = document.getElementById("distance");
-	distance.innerHTML = "You are " + km + " km from the WickedlySmart HQ";
+	map = new google.maps.Map(mapDiv, mapOptions);
 }
 
 var ourCoords = {
@@ -44,17 +49,17 @@ function computeDistance(startCoords, destCoords) {
 	var startLatRads = degreesToRadians(startCoords.latitude);
 	var startLongRads = degreesToRadians(startCoords.longitude);
 	var destLatRads = degreesToRadians(destCoords.latitude);
-	var destLongRads = degreesToRadians(startCoords.longitude);
+	var destLongRads = degreesToRadians(destCoords.longitude);
 
-	var Radius = 6371;
+	var Radius = 6371; // radius of the Earth in km
 	var distance = Math.acos(Math.sin(startLatRads) * Math.sin(destLatRads) +
-							Math.cos(startLatRads) * Math.cos(destLatRads) *
-							Math.cos(startLongRads - destLongRads)) * Radius;
+							 Math.cos(startLatRads) * Math.cos(destLatRads) *
+							 Math.cos(startLongRads - destLongRads)) * Radius;
 	return distance;
 }
 
 function degreesToRadians(degrees) {
-	var radians = (degrees * Math.pi)/ 180;
+	var radians = (degrees * Math.pi)/180;
 	return radians;
 }
 
